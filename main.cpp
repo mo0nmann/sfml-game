@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include "Header_Files/Player.h"
 
 // Function to maintain Aspect Ration upon Window Resize
 sf::View getLetterboxView(sf::View view, int windowWidth, int windowHeight) {
@@ -63,8 +64,6 @@ int main()
     sf::Sprite background_sprite;
     background_sprite.setTexture(background_texture);
 
-    background_sprite.setScale(sf::Vector2f(1, 1));
-
     // Create and Set Ground Texture Image
     sf::Texture ground_texture;
     if (!ground_texture.loadFromFile("images/Tiles/Tile_2.png")) {
@@ -86,6 +85,16 @@ int main()
     // Put sprite at bottom of screen
     ground_sprite.setPosition(0, window_height - ground_sprite.getGlobalBounds().height);
 
+    // ALlows for holding down of keys
+    window.setKeyRepeatEnabled(true);
+
+    // Create Player
+    Player player("images/Player/Idle_1.png");
+
+    // Set Player Position to be just above ground sprite
+    player.setPlayerPosition(0, window_height - ground_sprite.getGlobalBounds().height * 1.85);
+
+
     // While Window is open
     while (window.isOpen())
     {
@@ -96,11 +105,29 @@ int main()
         while (window.pollEvent(event))
         {   
             // If user closes window
-            if (event.type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed) {
                 window.close();
+            }
 
-            if (event.type == sf::Event::Resized)
+            // If user resizes window
+            if (event.type == sf::Event::Resized) {
                 view = getLetterboxView( view, event.size.width, event.size.height);
+            }
+
+            // If user moves player
+
+            // Move up
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+                player.movePlayer('u', 6.0);
+
+            // Move left
+            } if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                player.movePlayer('l', 6.0);
+
+            // Move right
+            } if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                player.movePlayer('r', 6.0);
+            }
         }
 
         window.clear();
@@ -110,6 +137,8 @@ int main()
         // Draw
         window.draw(background_sprite);
         window.draw(ground_sprite);
+        
+        player.drawPlayer(window);
 
         window.display();
     }
